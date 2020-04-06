@@ -9,10 +9,7 @@ const request = 'https://api.hgbrasil.com/finance?key=6efcc38e';
 void main() async {
   runApp(MaterialApp(
     home: Home(),
-    theme: ThemeData(
-      hintColor: Colors.amber,
-      primaryColor: Colors.white
-    )
+    theme: ThemeData(hintColor: Colors.amber, primaryColor: Colors.white),
   ));
 }
 
@@ -27,8 +24,28 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  final realController = TextEditingController();
+  final dolarController = TextEditingController();
+  final euroController = TextEditingController();
+
   double dolar;
   double euro;
+
+  void _realChanged(String text){
+    double real = double.parse(text);
+    dolarController.text = (real/dolar).toStringAsFixed(2);
+    euroController.text = (real/euro).toStringAsFixed(2);
+
+  }
+
+  void _dolarChanged(String text){
+    double dolar = double.parse(text);
+  }
+
+  void _euroChanged(String text){
+    print(text);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,26 +82,38 @@ class _HomeState extends State<Home> {
                     euro = snapshot.data["results"]["currencies"]["EUR"]["buy"];
 
                     return SingleChildScrollView(
+                        padding: EdgeInsets.all(10.0),
                         child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Icon(
-                          Icons.monetization_on,
-                          size: 150.0,
-                          color: Colors.amber,
-                        ),
-                        TextField(
-                          decoration: InputDecoration(
-                              labelText: "Reais",
-                              labelStyle: TextStyle(color: Colors.amber),
-                              border: OutlineInputBorder(),
-                              prefixText: "R\$"),
-                          style: TextStyle(color: Colors.amber, fontSize: 25.0),
-                        )
-                      ],
-                    ));
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Icon(
+                              Icons.monetization_on,
+                              size: 150.0,
+                              color: Colors.amber,
+                            ),
+                            buildTextfield("Reais", "R\$: ", realController, _realChanged),
+                            Divider(),
+                            buildTextfield("Dólares", "US\$: ", dolarController, _dolarChanged),
+                            Divider(),
+                            buildTextfield("Euros", "€: ", euroController, _euroChanged),
+                          ],
+                        ));
                   }
               }
             }));
   }
+}
+
+Widget buildTextfield(String label, String prefix, TextEditingController c, Function f) {
+  return TextField(
+    controller: c,
+    decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.amber),
+        border: OutlineInputBorder(),
+        prefixText: prefix),
+    style: TextStyle(color: Colors.amber, fontSize: 25.0),
+    onChanged: f,
+    keyboardType:  TextInputType.number,
+  );
 }
